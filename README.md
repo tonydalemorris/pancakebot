@@ -2,11 +2,11 @@
 
 ## Running locally
 
-- `virtualenv -p python3 env`
-- `source ./env/bin/activate`
-- `pip install -r requirements.txt`
+- Create a new python virtual environment: `virtualenv -p python3 env`
+- Activate the virtual environment: `source ./env/bin/activate`
+- Install the required pip modules: `pip install -r requirements.txt`
 - Follow the instructions on seeting up your GroupMe API key to be discoverable by the groupy module: http://groupy.readthedocs.io/en/latest/pages/installation.html
-- `python pancakebot.py`
+- Run the server: `python pancakebot.py`
 
 ## Testing the callback endpoint
 
