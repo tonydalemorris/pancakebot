@@ -1,5 +1,7 @@
 # pancakebot
 
+![pancakebot](http://i.imgur.com/B4VFEwA.png)
+
 ## Running locally
 
 - Create a new python virtual environment: `virtualenv -p python3 env`
