@@ -1,0 +1,3 @@
+
+DEBUG = False
+FORECASTIO_API_KEY = None
