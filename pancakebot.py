@@ -1,10 +1,13 @@
 import logging
 from logging.handlers import RotatingFileHandler
+
 import groupy
-from flask import Flask, request
 import forecastio
-from geopy.geocoders import Nominatim
 import giphypop
+import requests
+import bs4
+from geopy.geocoders import Nominatim
+from flask import Flask, request
 
 application = Flask(__name__)
 application.config.from_object('settings')
@@ -23,6 +26,7 @@ WEATHER_ICONS = {
 }
 
 commands = {}
+
 
 def command(cmd):
   def wrapped_command(function):
@@ -71,6 +75,47 @@ def slap(bot, message, author=None, debug=False):
 
   if debug:
     print(slap)
+  else:
+    bot.post(slap)
+
+@command('!h')
+def horoscope(bot, message, author=None, debug=False):
+  sign = message.lower()
+
+  signs = [
+    'aries',
+    'taurus',
+    'gemini',
+    'cancer',
+    'leo',
+    'virgo',
+    'libra',
+    'scorpio',
+    'sagittarius',
+    'capricorn',
+    'aquarius',
+    'pisces'
+  ]
+
+  if sign not in signs:
+    error = '{0} is not a star sign, zodiac thing, or whatever.'.format(message)
+    if debug:
+      print(error)
+    else:
+      bot.post()
+    return
+
+  url = 'http://www.horoscope.com/us/horoscopes/general/horoscope-general-daily-today.aspx?sign={0}'.format(signs.index(sign) + 1)
+  page = requests.get(url)
+
+  soup = bs4.BeautifulSoup(page.content, 'lxml')
+  elements = soup.select('.block-horoscope-text')
+  if len(elements) == 0:
+    print('Unable to find horoscope for: {0}'.format(message))
+    return
+  horoscope = '{0}: {1}'.format(message, elements[0].getText().strip())
+  if debug:
+    print(horoscope)
   else:
     bot.post(slap)
 
