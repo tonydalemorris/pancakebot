@@ -51,10 +51,10 @@ GroupMe.
 
 ```python
 @command('!slap')
-def slap(bot, message, author=None):
+def slap(bot, message, author=None, debug=False):
   slap = '{0} slaps {1} around a bit with a large trout'.format(author, message)
 
-  if application.config['DEBUG']:
+  if debug:
     print(slap)
   else:
     bot.post(slap)
