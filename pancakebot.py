@@ -117,7 +117,7 @@ def horoscope(bot, message, author=None, debug=False):
   if debug:
     print(horoscope)
   else:
-    bot.post(slap)
+    bot.post(horoscope)
 
 @application.route('/pancakebot', methods=['POST'])
 def hello():
