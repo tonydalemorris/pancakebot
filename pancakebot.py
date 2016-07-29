@@ -4,6 +4,7 @@ import groupy
 from flask import Flask, request
 import forecastio
 from geopy.geocoders import Nominatim
+import giphypop
 
 application = Flask(__name__)
 application.config.from_object('settings')
@@ -35,7 +36,19 @@ def display_weather(bot, message):
   current = forecast.currently()
   icon = WEATHER_ICONS[current.icon] or ''
 
-  bot.post('{0}  {1} {2}° (feels like {3}°)'.format(icon, current.summary, round(current.temperature), round(current.apparentTemperature)))
+  post = '{0}  {1} {2}° (feels like {3}°)'.format(icon, current.summary, round(current.temperature), round(current.apparentTemperature))
+
+  if application.config['DEBUG']:
+    print(post)
+  else:
+    bot.post(post)
+
+def display_gif(bot, message):
+  img = giphypop.translate(phrase=message, strict=True)
+  if application.config['DEBUG']:
+    print(img.media_url)
+  else:
+    bot.post(img.media_url)
 
 @application.route('/pancakebot', methods=['POST'])
 def hello():
@@ -46,8 +59,10 @@ def hello():
   message = data['text'].lower()
 
   try:
-    if message.startswith('!weather'):
-      display_weather(bot, message[len('!weather'):].strip())
+    if message.startswith('!weather '):
+      display_weather(bot, message[len('!weather '):])
+    elif message.startswith('!gif '):
+      display_gif(bot, message[len('!gif '):])
   except Exception as e:
     print(e)
 
