@@ -9,8 +9,6 @@ import giphypop
 application = Flask(__name__)
 application.config.from_object('settings')
 
-
-# clear-day, clear-night, rain, snow, sleet, wind, fog, cloudy, partly-cloudy-day, or partly-cloudy-night
 WEATHER_ICONS = {
   'clear-day': '☀',
   'clear-night': '🌑',
@@ -24,7 +22,19 @@ WEATHER_ICONS = {
   'partly-cloudy-night': '☁🌑'
 }
 
-def display_weather(bot, message, author=None):
+commands = {}
+
+def command(cmd):
+  def wrapped_command(function):
+    def wrapper(*args, **kwargs):
+      function(*args, **kwargs)
+    if cmd not in commands:
+      commands[cmd] = []
+    commands[cmd].append(wrapper)
+  return wrapped_command
+
+@command('!weather')
+def weather(bot, message, author=None):
   api_key = application.config['FORECASTIO_API_KEY']
 
   if api_key is None:
@@ -43,14 +53,17 @@ def display_weather(bot, message, author=None):
   else:
     bot.post(post)
 
-def display_gif(bot, message, author=None):
+@command('!gif')
+def gif(bot, message, author=None):
   img = giphypop.translate(phrase=message, strict=True)
+
   if application.config['DEBUG']:
     print(img.media_url)
   else:
     bot.post(img.media_url)
 
-def display_slap(bot, message, author=None):
+@command('!slap')
+def slap(bot, message, author=None):
   if author is None:
     return
 
@@ -61,6 +74,10 @@ def display_slap(bot, message, author=None):
   else:
     bot.post(slap)
 
+@command('!foo')
+def foo(bot, message, author=None):
+  print('foo', message)
+
 @application.route('/pancakebot', methods=['POST'])
 def hello():
   data = request.get_json()
@@ -69,15 +86,20 @@ def hello():
   user = data['name']
   message = data['text']
 
-  try:
-    if message.startswith('!weather '):
-      display_weather(bot, message[len('!weather '):], author=user)
-    elif message.startswith('!gif '):
-      display_gif(bot, message[len('!gif '):], author=user)
-    elif message.startswith('!slap '):
-      display_slap(bot, message[len('!slap '):], author=user)
-  except Exception as e:
-    print(e)
+  print('Received message: {0}'.format(data))
+
+  for command in commands:
+    if not message.startswith(command + ' ') and message != command:
+      continue
+
+    print('Executing command: {0}'.format(command))
+
+    for callback in commands[command]:
+      try:
+        callback(bot, message[len(command):].strip(), author=user)
+      except Exception as e:
+        print('Error executing command: {0}'.format(command))
+        print(e)
 
   return 'OK'
 
