@@ -36,3 +36,24 @@ This will post a message with the following payload:
   "created_at":1469591800
 }
 ```
+
+## Adding a new command
+
+To add a new command, decorated a function with the @command decorator. The
+@command decorated takes a single argument which is the name of the command.
+The command function will receive 3 arguments, the `bot`, the `message` text,
+and a keyword arg `author` which is the name of the user who posted the message.
+Your command should respect the `DEBUG` configuration; if `DEBUG` is `True`,
+your command should simply print the bot's response instead of actually posting
+it to GroupMe.
+
+```python
+@command('!slap')
+def slap(bot, message, author=None):
+  slap = '{0} slaps {1} around a bit with a large trout'.format(author, message)
+
+  if application.config['DEBUG']:
+    print(slap)
+  else:
+    bot.post(slap)
+```
