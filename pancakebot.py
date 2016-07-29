@@ -34,7 +34,7 @@ def command(cmd):
   return wrapped_command
 
 @command('!weather')
-def weather(bot, message, author=None):
+def weather(bot, message, author=None, debug=False):
   api_key = application.config['FORECASTIO_API_KEY']
 
   if api_key is None:
@@ -48,35 +48,31 @@ def weather(bot, message, author=None):
 
   post = '{0}  {1} {2}° (feels like {3}°)'.format(icon, current.summary, round(current.temperature), round(current.apparentTemperature))
 
-  if application.config['DEBUG']:
+  if debug:
     print(post)
   else:
     bot.post(post)
 
 @command('!gif')
-def gif(bot, message, author=None):
+def gif(bot, message, author=None, debug=False):
   img = giphypop.translate(phrase=message, strict=True)
 
-  if application.config['DEBUG']:
+  if debug:
     print(img.media_url)
   else:
     bot.post(img.media_url)
 
 @command('!slap')
-def slap(bot, message, author=None):
+def slap(bot, message, author=None, debug=False):
   if author is None:
     return
 
   slap = '{0} slaps {1} around a bit with a large trout'.format(author, message)
 
-  if application.config['DEBUG']:
+  if debug:
     print(slap)
   else:
     bot.post(slap)
-
-@command('!foo')
-def foo(bot, message, author=None):
-  print('foo', message)
 
 @application.route('/pancakebot', methods=['POST'])
 def hello():
@@ -96,7 +92,7 @@ def hello():
 
     for callback in commands[command]:
       try:
-        callback(bot, message[len(command):].strip(), author=user)
+        callback(bot, message[len(command):].strip(), author=user, debug=application.config['DEBUG'])
       except Exception as e:
         print('Error executing command: {0}'.format(command))
         print(e)
