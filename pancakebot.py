@@ -24,7 +24,7 @@ WEATHER_ICONS = {
   'partly-cloudy-night': '☁🌑'
 }
 
-def display_weather(bot, message):
+def display_weather(bot, message, author=None):
   api_key = application.config['FORECASTIO_API_KEY']
 
   if api_key is None:
@@ -43,12 +43,23 @@ def display_weather(bot, message):
   else:
     bot.post(post)
 
-def display_gif(bot, message):
+def display_gif(bot, message, author=None):
   img = giphypop.translate(phrase=message, strict=True)
   if application.config['DEBUG']:
     print(img.media_url)
   else:
     bot.post(img.media_url)
+
+def display_slap(bot, message, author=None):
+  if author is None:
+    return
+
+  slap = '{0} slaps {1} around a bit with a large trout'.format(author, message)
+
+  if application.config['DEBUG']:
+    print(slap)
+  else:
+    bot.post(slap)
 
 @application.route('/pancakebot', methods=['POST'])
 def hello():
@@ -56,13 +67,15 @@ def hello():
   bot = groupy.Bot.list().first
 
   user = data['name']
-  message = data['text'].lower()
+  message = data['text']
 
   try:
     if message.startswith('!weather '):
-      display_weather(bot, message[len('!weather '):])
+      display_weather(bot, message[len('!weather '):], author=user)
     elif message.startswith('!gif '):
-      display_gif(bot, message[len('!gif '):])
+      display_gif(bot, message[len('!gif '):], author=user)
+    elif message.startswith('!slap '):
+      display_slap(bot, message[len('!slap '):], author=user)
   except Exception as e:
     print(e)
 
